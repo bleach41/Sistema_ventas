@@ -1,6 +1,16 @@
 #:kivy 2.2.1
 #:import hex kivy.utils.get_color_from_hex
-
+<Labeloscuro@Label>:
+    halign: 'center'
+    valign: 'middle'
+    text_size: self.size
+    canvas.before:
+        Color:
+            rgba: hex('#1D2522')
+        Rectangle:
+            size: self.size
+            pos: self.pos
+    
 <Botona@Button>
     size_hint: None, None
     size: 200, 50
@@ -49,8 +59,8 @@
     # on_release:
     # padding:
 <Botonc@Button>
-    size_hint: .5, .2
-    size: 200, 50
+    # size_hint: .5, .2
+    # size: 200, 50
     # pos_hint: {'center_x': 0.5, 'center_y': 0.5}
     background_color: hex ('#2E4744')
     background_normal: ''
@@ -104,6 +114,7 @@
     BoxLayout:
         
         BoxLayout:
+            padding: 0,0,1,0
             canvas.before:
                 Color:
                     rgba: hex('#ffffff')
@@ -120,15 +131,54 @@
 
                 TextInput:
                     multiline: False
-                    on_text_validate: root.agregar_producto_nombre(self.text)
-                    foreground_color: hex ('#000000') 
-                    hint_text: "Buscar por nombre"
-                TextInput:
-                    multiline: False
                     on_text_validate: root.agregar_producto_id(self.text)
                     foreground_color: hex ('#000000')
                     hint_text: "Buscar por id" 
+
+                TextInput:
+                    multiline: False
+                    on_text_validate: root.agregar_producto_nombre(self.text)
+                    foreground_color: hex ('#000000') 
+                    hint_text: "Buscar por nombre"
             BoxLayout:
+                spacing: 2
+                size_hint_y: .05 
+                Labeloscuro:
+                    size_hint_x: .1
+                    text: "id" 
+                Labeloscuro:
+                    size_hint_x: .4
+                    text: "nombre producto" 
+                Labeloscuro:
+                    size_hint_x: .1
+                    text: "cantidad" 
+                Labeloscuro:
+                    size_hint_x: .2
+                    text: "precio"   
+                Labeloscuro:
+                    size_hint_x: .2
+                    text: "total"  
+#espacio en blanco del medio izquierdo
+            BoxLayout:
+                size_hint_y: .94
+                spacing:2
+                orientation:"vertical"
+                Botonc:
+                    size_hint_x: 1
+                    size: 200, 50
+                    id: eliminar
+                    text:"eliminar"
+                    on_release: root.eliminar_product()
+                Botonc:
+                    size_hint_x: 1
+                    size: 200, 50
+                    id: cantidad
+                    text:"cantidad"
+                    on_release: root.cantidad()
+
+
+            BoxLayout:
+                size_hint_y: .15
                 spacing:2
                 orientation:"horizontal"
                 Botonc:
@@ -141,18 +191,55 @@
                     on_release: root.cantidad()
             
         BoxLayout:
+            orientation:"vertical"
             size_hint_x: 0.7
             canvas.before:
                 Color:
-                    rgba: hex('#ffffff2f')
+                    rgba: hex('#889f93')
                 Rectangle:
                     #size_hint_y: 0.4 
                     size: self.size
                     pos: self.pos
-         
-            Label:
+            GridLayout:
+                size_hint_y: .2
+                row:2
+                cols:2
+                Labeloscuro:
+                    text:"subtotal"
+                Labeloscuro:
+                    text:"00.00"    
+                Labeloscuro:
+                    text:"total"
+                Labeloscuro:
+                    text:"00.00"     
 
-                text: "Cuadricula de Importe"
+            BoxLayout:
+                orientation: "vertical"
+                Label:
+                    size_hint_y: .85
+                    text: "Cuadricula de Importe"
+
+                GridLayout:
+                    spacing:2
+                    size_hint_y: .15
+                    row:2
+                    cols:2
+                    Botonc:
+                        id: pagar
+                        text:"Pagar"
+                        on_release: root.pagar()
+                    Botonc:
+                        id: nueva_compra
+                        text:"nueva compra"  
+                        on_release: root.nueva_compra()     
+                    Botonc:
+                        id: imprimir
+                        text:"Imprimir" 
+                        on_release: root.imprimir()
+                    Botonc:
+                        id: cancelar
+                        text:"Cancelar" 
+                        on_release: root.cancelar()    
     BoxLayout:
         size_hint_y: 0.1
         canvas.before:
