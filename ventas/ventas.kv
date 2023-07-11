@@ -1,24 +1,48 @@
 #:kivy 2.2.1
 #:import hex kivy.utils.get_color_from_hex
 
-<SelectableLabel>:
+<SelectableLabelBoxLayaout>:
+
     # Draw a background to indicate selection
+    
     canvas.before:
         Color:
-            rgba: (.0, 0.9, .1, .3) if self.selected else (0, 0, 0, 1)
-        Rectangle:
+            rgba: hex('#4C695E') if self.selected else hex('#0E1311')
+        Rectangle:   
             pos: self.pos
             size: self.size
+    Label:
+        id: numero
+        size_hint_x: 0.1 
+        color: (0,0,0,1)
+    Label:
+        id: nombre_p
+        size_hint_x: 0.4    
+        color: (0,0,0,1)
+    Label:
+        id: cantidad_p
+        size_hint_x: 0.1 
+        color: (0,0,0,1)
+    Label:
+        id: precio_p
+        size_hint_x: 0.2
+        color: (0,0,0,1)
+    Label:
+        id: total_p
+        size_hint_x: 0.2  
+        color: (0,0,0,1)                 
 <RV>:
-    viewclass: 'SelectableLabel'
+    viewclass: 'SelectableLabelBoxLayaout'
     SelectableRecycleBoxLayout:
-        default_size: None, dp(56)
+        padding: 0, 1, 0, 0
+        spacing: .5
+        default_size: None, dp(30)
         default_size_hint: 1, None
         size_hint_y: None
         height: self.minimum_height
         orientation: 'vertical'
-        multiselect: True
-        touch_multiselect: True
+        multiselect: False
+        touch_multiselect: False
 
 <Labeloscuro@Label>:
     halign: 'center'
@@ -132,12 +156,14 @@
                 cols: 2
 
                 TextInput:
+                    id: buscar_x_id
                     multiline: False
                     on_text_validate: root.agregar_producto_id(self.text)
                     foreground_color: hex ('#000000')
                     hint_text: "Buscar por id" 
 
                 TextInput:
+                    id: buscar_x_nombre
                     multiline: False
                     on_text_validate: root.agregar_producto_nombre(self.text)
                     foreground_color: hex ('#000000') 
@@ -147,7 +173,7 @@
                 size_hint_y: .05 
                 Labeloscuro:
                     size_hint_x: .1
-                    text: "id" 
+                    text: "#" 
                 Labeloscuro:
                     size_hint_x: .4
                     text: "nombre producto" 
@@ -193,6 +219,7 @@
                 Labeloscuro:
                     text:"subtotal"
                 Labeloscuro:
+                    id: subtotal
                     text:"00.00"    
                 Labeloscuro:
                     text:"total"

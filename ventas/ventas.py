@@ -1,14 +1,15 @@
-""" algo """
+""""h"""
+
 from kivy.app import App
-# from kivy.lang import Builder
+
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.recycleview import RecycleView
 from kivy.uix.recycleview.views import RecycleDataViewBehavior
-from kivy.uix.label import Label
-# import kivy.properties as BooleanProperty
+
 from kivy.uix.recycleboxlayout import RecycleBoxLayout
 from kivy.uix.behaviors import FocusBehavior
 from kivy.uix.recycleview.layout import LayoutSelectionBehavior
+# from kivy.properties import BooleanProperty  # Aqui da error
 
 
 # inventario de prueba /ESTO DEBRIA HACERSE PARA LA BASE DE DATOS
@@ -38,23 +39,30 @@ class BooleanProperty(Property):
 class SelectableRecycleBoxLayout(FocusBehavior, LayoutSelectionBehavior, RecycleBoxLayout):
 
     ''' Adds selection and focus behaviour to the view. '''
+    touch_deselect_last = True
 
 
-class SelectableLabel(RecycleDataViewBehavior, Label):
+class SelectableLabelBoxLayaout(RecycleDataViewBehavior, BoxLayout):
     ''' Add selection support to the Label '''
     index = None
-    selected = BooleanProperty(False)
+    selected = True
     selectable = BooleanProperty(True)
+    # background_color: ListProperty([0, 0, 0, 0])
 
     def refresh_view_attrs(self, rv, index, data):
         ''' Catch and handle the view changes '''
         self.index = index
-        return super(SelectableLabel, self).refresh_view_attrs(
+        self.ids['numero'].text = str(1+index)
+        self.ids['nombre_p'].text = data['nombre'].capitalize()
+        self.ids['cantidad_p'].text = str(data['cantidad_carrito'])
+        self.ids['precio_p'].text = str("{:.2f}".format(data['precio']))
+        self.ids['total_p'].text = str("{:.2f}".format(data['precio_total']))
+        return super(SelectableLabelBoxLayaout, self).refresh_view_attrs(
             rv, index, data)
 
     def on_touch_down(self, touch):
         ''' Add selection on touch down '''
-        if super(SelectableLabel, self).on_touch_down(touch):
+        if super(SelectableLabelBoxLayaout, self).on_touch_down(touch):
             return True
         if self.collide_point(*touch.pos) and self.selectable:
             return self.parent.select_with_touch(self.index, touch)
@@ -71,7 +79,24 @@ class SelectableLabel(RecycleDataViewBehavior, Label):
 class RV(RecycleView):
     def __init__(self, **kwargs):
         super(RV, self).__init__(**kwargs)
-        self.data = [{'text': str(x)} for x in range(100)]
+        self.data = []
+
+    def agregar_articulo(self, articulo):
+        articulo['seleccionado'] = False
+        indice = -1
+        if self.data:
+            for i in range(len(self.data)):
+                if articulo['codigo'] == self.data[i]['codigo']:
+                    indice = i
+            if indice >= 0:
+                self.data[indice]['cantidad_carrito'] += 1
+                self.data[indice]['precio_total'] = self.data[indice]['precio'] * \
+                    self.data[indice]['cantidad_carrito']
+                self.refresh_from_data()
+            else:
+                self.data.append(articulo)
+        else:
+            self.data.append(articulo)
 
 
 inventario = {
@@ -86,26 +111,54 @@ inventario = {
 class Ventas(BoxLayout):
     """Class representing The ROOT"""
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.total = 0.0
     # """Implementacion de los Textinput"""
 
     def agregar_producto_id(self, codigo):
+        """agregar producto el RV"""
         try:
             codigo = int(codigo)
             if isinstance(codigo, int):
                 for producto in inventario.values():
                     if codigo == producto['id']:
-                        print("se encontro", producto)
+                        articulo = {}
+                        articulo['codigo'] = producto['id']
+                        articulo['nombre'] = producto['nombre']
+                        articulo['precio'] = producto['precio']
+                        articulo['cantidad_carrito'] = 1
+                        articulo['cantidad_inventario'] = producto['cantidad']
+                        articulo['precio_total'] = producto['precio']
+                        self.agregar_producto(articulo)
+                        self.ids.buscar_x_id.text = ''
+                        print("se encontro", articulo)
                         break
                 else:
                     print("no encontrado")
         except ValueError:
             print("entrada no valida")
 
+    def agregar_producto(self, articulo):
+        self.ids.rvs.agregar_articulo(articulo)
+        self.total += articulo['precio']
+        self.ids.subtotal.text = "{:2f}".format(self.total)
+
     def agregar_producto_nombre(self, nombre):
         """Busqueda por nombre"""
         try:
             for producto in inventario.values():
                 if nombre == producto['nombre']:
+                    articulo = {}
+                    articulo['codigo'] = producto['id']
+                    articulo['nombre'] = producto['nombre']
+                    articulo['precio'] = producto['precio']
+                    articulo['cantidad_carrito'] = 1
+                    articulo['cantidad_inventario'] = producto['cantidad']
+                    articulo['precio_total'] = producto['precio']
+                    self.agregar_producto(articulo)
+                    self.ids.buscar_x_nombre.text = ''
+                    print("se encontro", articulo)
                     print("se encontro", producto)
                     break
             else:
