@@ -76,6 +76,9 @@ class SelectableLabelBoxLayaout(RecycleDataViewBehavior, BoxLayout):
             print("selection removed for {0}".format(rv.data[index]))
 
 
+"""IMPLEMENTACION DE RV/RecyleVi"""
+
+
 class RV(RecycleView):
     def __init__(self, **kwargs):
         super(RV, self).__init__(**kwargs)
@@ -104,8 +107,7 @@ inventario = {
     "producto2": {"id": 2, "nombre": "producto2", "cantidad": 20, "precio": 200},
     "producto3": {"id": 3, "nombre": "producto3", "cantidad": 30, "precio": 300},
 }
-
-# IMPLEMENTACION DE RV/RecyleVi
+"""IMPLEMENTACION DE DE LO QUE ESTA EN .KV"""
 
 
 class Ventas(BoxLayout):
@@ -114,7 +116,8 @@ class Ventas(BoxLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.total = 0.0
-    # """Implementacion de los Textinput"""
+
+    """Implementacion de los Textinput"""
 
     def agregar_producto_id(self, codigo):
         """agregar producto el RV"""
