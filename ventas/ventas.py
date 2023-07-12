@@ -76,10 +76,9 @@ class SelectableLabelBoxLayaout(RecycleDataViewBehavior, BoxLayout):
             print("selection removed for {0}".format(rv.data[index]))
 
 
-"""IMPLEMENTACION DE RV/RecyleVi"""
-
-
 class RV(RecycleView):
+    """IMPLEMENTACION DE RV/RecyleVi"""
+
     def __init__(self, **kwargs):
         super(RV, self).__init__(**kwargs)
         self.data = []
@@ -116,8 +115,6 @@ class Ventas(BoxLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.total = 0.0
-
-    """Implementacion de los Textinput"""
 
     def agregar_producto_id(self, codigo):
         """agregar producto el RV"""
