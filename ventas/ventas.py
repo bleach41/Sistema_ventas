@@ -19,9 +19,10 @@ inventario = [
 
 
 class AgregarProductoPopup(Popup):
-    def __init__(self, input_nombre, **kwargs):
+    def __init__(self, input_nombre, gregar_producto_rvs_callback, **kwargs):
         super().__init__(**kwargs)
         self.input_nombre = input_nombre
+        self.agregar_producto_rv = gregar_producto_rvs_callback
 
     def coincidencia_product(self):
         self.open()
@@ -30,12 +31,27 @@ class AgregarProductoPopup(Popup):
             if nombre['nombre'].lower().find(self.input_nombre.lower()) >= 0:
                 producto = {}
                 producto = {
-                    "codigo": nombre['id'],
+                    "id": nombre['id'],
                     "nombre": nombre['nombre'],
                     "cantidad": nombre['cantidad'],
                     "precio": nombre['precio']
                 }
                 self.ids.rvs.agregar_articulo(producto)
+
+    def select_producto_popup(self):
+        indice = self.ids.rvs.producto_seleccionado_rvs()
+        if indice >= 0:
+            producto = self.ids.rvs.data[indice]
+            articulo = {}
+            articulo['id'] = producto['id']
+            articulo['nombre'] = producto['nombre']
+            articulo['precio'] = producto['precio']
+            articulo['cantidad_carrito'] = 1
+            articulo['cantidad_inventario'] = producto['cantidad']
+            articulo['precio_total'] = producto['precio']
+            if callable(self.agregar_producto_rv):
+                self.agregar_producto_rv(articulo)
+            self.dismiss()
 
 
 class Property:
@@ -95,10 +111,11 @@ class SelectableLabelBoxLayaout(RecycleDataViewBehavior, BoxLayout):
         ''' Respond to the selection of items in the view. '''
         self.selected = is_selected
         if is_selected:
+            rv.data[index]["seleccionado"] = True
             print("selection changed to {0}".format(rv.data[index]))
         else:
+            rv.data[index]["seleccionado"] = False
             print("selection removed for {0}".format(rv.data[index]))
-
 # SelectableLabel para al Popup
 
 
@@ -130,8 +147,10 @@ class SelectableLabelBoxLayaoutPopup(RecycleDataViewBehavior, BoxLayout):
         ''' Respond to the selection of items in the view. '''
         self.selected = is_selected
         if is_selected:
+            rv.data[index]["seleccionado"] = True
             print("selection changed to {0}".format(rv.data[index]))
         else:
+            rv.data[index]["seleccionado"] = False
             print("selection removed for {0}".format(rv.data[index]))
 
 
@@ -147,7 +166,7 @@ class RV(RecycleView):
         indice = -1
         if self.data:
             for i in range(len(self.data)):
-                if articulo['codigo'] == self.data[i]['codigo']:
+                if articulo['id'] == self.data[i]['id']:
                     indice = i
             if indice >= 0:
                 self.data[indice]['cantidad_carrito'] += 1
@@ -158,6 +177,14 @@ class RV(RecycleView):
                 self.data.append(articulo)
         else:
             self.data.append(articulo)
+
+    def producto_seleccionado_rvs(self):
+        indice = -1
+        for i in range(len(self.data)):
+            if self.data[i]:
+                indice = i
+                break
+        return indice
 
 
 class Ventas(BoxLayout):
@@ -175,13 +202,13 @@ class Ventas(BoxLayout):
                 for producto in inventario:
                     if codigo == producto['id']:
                         articulo = {}
-                        articulo['codigo'] = producto['id']
+                        articulo['id'] = producto['id']
                         articulo['nombre'] = producto['nombre']
                         articulo['precio'] = producto['precio']
                         articulo['cantidad_carrito'] = 1
                         articulo['cantidad_inventario'] = producto['cantidad']
                         articulo['precio_total'] = producto['precio']
-                        self.agregar_producto(articulo)
+                        self.agregar_producto_rv(articulo)
                         self.ids.buscar_x_id.text = ''
                         print("se encontro", articulo)
                         break
@@ -190,14 +217,14 @@ class Ventas(BoxLayout):
         except ValueError:
             print("entrada no valida")
 
-    def agregar_producto(self, articulo):
+    def agregar_producto_rv(self, articulo):
         self.ids.rvs.agregar_articulo(articulo)
         self.total += articulo['precio']
         self.ids.subtotal.text = "{:2f}".format(self.total)
 
     def agregar_producto_nombre(self, nombre):
         """Busqueda por nombre"""
-        popup = AgregarProductoPopup(nombre)
+        popup = AgregarProductoPopup(nombre, self.agregar_producto_rv)
         popup.coincidencia_product()
 
     # """Implementacion de los botones"""
