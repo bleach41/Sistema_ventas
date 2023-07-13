@@ -11,15 +11,31 @@ from kivy.uix.popup import Popup
 
 
 # inventario de prueba /ESTO DEBRIA HACERSE PARA LA BASE DE DATOS
-inventario = {
-    "producto1": {"id": 1, "nombre": "producto1", "cantidad": 10, "precio": 100},
-    "producto2": {"id": 2, "nombre": "producto2", "cantidad": 20, "precio": 200},
-    "producto3": {"id": 3, "nombre": "producto3", "cantidad": 30, "precio": 300},
-}
+inventario = [
+    {"id": 111, "nombre": "leche", "cantidad": 10, "precio": 100},
+    {"id": 222, "nombre": "huevo", "cantidad": 20, "precio": 200},
+    {"id": 333, "nombre": "arroz", "cantidad": 30, "precio": 300},
+]
 
 
 class AgregarProductoPopup(Popup):
-    pass
+    def __init__(self, input_nombre, **kwargs):
+        super().__init__(**kwargs)
+        self.input_nombre = input_nombre
+
+    def coincidencia_product(self):
+        self.open()
+        for nombre in inventario:
+            print("##################", nombre)
+            if nombre['nombre'].lower().find(self.input_nombre.lower()) >= 0:
+                producto = {}
+                producto = {
+                    "codigo": nombre['id'],
+                    "nombre": nombre['nombre'],
+                    "cantidad": nombre['cantidad'],
+                    "precio": nombre['precio']
+                }
+                self.ids.rvs.agregar_articulo(producto)
 
 
 class Property:
@@ -83,6 +99,41 @@ class SelectableLabelBoxLayaout(RecycleDataViewBehavior, BoxLayout):
         else:
             print("selection removed for {0}".format(rv.data[index]))
 
+# SelectableLabel para al Popup
+
+
+class SelectableLabelBoxLayaoutPopup(RecycleDataViewBehavior, BoxLayout):
+    ''' Add selection support to the Label '''
+    index = None
+    selected = True
+    selectable = BooleanProperty(True)
+    # background_color: ListProperty([0, 0, 0, 0])
+
+    def refresh_view_attrs(self, rv, index, data):
+        ''' Catch and handle the view changes '''
+        self.index = index
+        self.ids['numero'].text = str(1+index)
+        self.ids['nombre_p'].text = data['nombre']
+        self.ids['cantidad_p'].text = str(data['cantidad'])
+        self.ids['precio_p'].text = str("{:.2f}".format(data['precio']))
+        return super(SelectableLabelBoxLayaoutPopup, self).refresh_view_attrs(
+            rv, index, data)
+
+    def on_touch_down(self, touch):
+        ''' Add selection on touch down '''
+        if super(SelectableLabelBoxLayaoutPopup, self).on_touch_down(touch):
+            return True
+        if self.collide_point(*touch.pos) and self.selectable:
+            return self.parent.select_with_touch(self.index, touch)
+
+    def apply_selection(self, rv, index, is_selected):
+        ''' Respond to the selection of items in the view. '''
+        self.selected = is_selected
+        if is_selected:
+            print("selection changed to {0}".format(rv.data[index]))
+        else:
+            print("selection removed for {0}".format(rv.data[index]))
+
 
 class RV(RecycleView):
     """IMPLEMENTACION DE RV/RecyleVi"""
@@ -121,7 +172,7 @@ class Ventas(BoxLayout):
         try:
             codigo = int(codigo)
             if isinstance(codigo, int):
-                for producto in inventario.values():
+                for producto in inventario:
                     if codigo == producto['id']:
                         articulo = {}
                         articulo['codigo'] = producto['id']
@@ -144,10 +195,10 @@ class Ventas(BoxLayout):
         self.total += articulo['precio']
         self.ids.subtotal.text = "{:2f}".format(self.total)
 
-    def agregar_producto_nombre(self, _):
+    def agregar_producto_nombre(self, nombre):
         """Busqueda por nombre"""
-        popup = AgregarProductoPopup()
-        popup.open()
+        popup = AgregarProductoPopup(nombre)
+        popup.coincidencia_product()
 
     # """Implementacion de los botones"""
 

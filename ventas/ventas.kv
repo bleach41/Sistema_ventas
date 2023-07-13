@@ -30,12 +30,13 @@
 	    			text: 'Nombre'
 			        size_hint_x: .5
 			    Labela:
-	    			text: 'Cantidad'
+	    			text: 'En inventario'
 			        size_hint_x: .2
 			    Labela:
 	    			text: 'Precio'
 			        size_hint_x: .2
 			RV:
+                viewclass: 'SelectableLabelBoxLayaoutPopup'
 				id: rvs
 		BoxLayout:
 			size_hint_y: .2
@@ -46,7 +47,37 @@
 				text: 'Salir'
 				on_release: root.dismiss()
             # otros widgets dentro del BoxLayout
-            
+<SelectableLabelBoxLayaoutPopup>:
+
+    # Draw a background to indicate selection
+    size_hint_min: 200, None
+    canvas.before:
+        Color:
+            rgba: hex('#4C695E') if self.selected else hex('#0E1311')
+        Rectangle:   
+            pos: self.pos
+            size: self.size
+    Label:
+        size_hint_min: 200, None
+        id: numero
+        size_hint_x: 0.2
+        color: (0,0,0,1)
+    Label:
+        size_hint_min: 200, None
+        id: nombre_p
+        size_hint_x: 0.5   
+        color: (0,0,0,1)
+    Label:
+        size_hint_min: 200, None
+        id: cantidad_p
+        size_hint_x: 0.2
+        color: (0,0,0,1)
+    Label:
+        size_hint_min: 200, None
+        id: precio_p
+        size_hint_x: 0.2
+        color: (0,0,0,1) 
+
 <SelectableLabelBoxLayaout>:
 
     # Draw a background to indicate selection
@@ -83,7 +114,6 @@
         size_hint_x: 0.2  
         color: (0,0,0,1)                 
 <RV>:
-    viewclass: 'SelectableLabelBoxLayaout'
     SelectableRecycleBoxLayout:
         size_hint_min: 200, None
         padding: 0, 1, 0, 0
@@ -259,7 +289,7 @@
                     text: "nombre producto" 
                 Labeloscuro:
                     size_hint_x: .1
-                    text: "cantidad" 
+                    text: "carrito" 
                 Labeloscuro:
                     size_hint_x: .2
                     text: "precio"   
@@ -268,6 +298,7 @@
                     text: "total"  
 #espacio en blanco del medio izquierdo
             RV:
+                viewclass: 'SelectableLabelBoxLayaout'
                 id: rvs
             BoxLayout:
                 size_hint_y: .15
