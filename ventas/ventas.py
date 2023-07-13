@@ -13,6 +13,12 @@ from kivy.uix.recycleview.layout import LayoutSelectionBehavior
 
 
 # inventario de prueba /ESTO DEBRIA HACERSE PARA LA BASE DE DATOS
+inventario = {
+    "producto1": {"id": 1, "nombre": "producto1", "cantidad": 10, "precio": 100},
+    "producto2": {"id": 2, "nombre": "producto2", "cantidad": 20, "precio": 200},
+    "producto3": {"id": 3, "nombre": "producto3", "cantidad": 30, "precio": 300},
+}
+
 
 class Property:
     ''' Tuve que implementar property porque no se importa de kivy '''
@@ -99,14 +105,6 @@ class RV(RecycleView):
                 self.data.append(articulo)
         else:
             self.data.append(articulo)
-
-
-inventario = {
-    "producto1": {"id": 1, "nombre": "producto1", "cantidad": 10, "precio": 100},
-    "producto2": {"id": 2, "nombre": "producto2", "cantidad": 20, "precio": 200},
-    "producto3": {"id": 3, "nombre": "producto3", "cantidad": 30, "precio": 300},
-}
-"""IMPLEMENTACION DE DE LO QUE ESTA EN .KV"""
 
 
 class Ventas(BoxLayout):
