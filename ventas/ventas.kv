@@ -1,6 +1,52 @@
 #:kivy 2.2.1
 #:import hex kivy.utils.get_color_from_hex
 
+<Labela@Label>:
+    canvas.before:
+        Color:
+            rgba: hex('#3A4D68')
+    
+        Rectangle:
+            size: self.size[0], self.size[1]
+            pos: self.pos
+    
+    
+<AgregarProductoPopup>:
+    size_hint_min: 550, 500
+	size_hint: .55, .5
+	title: 'Productos'
+	BoxLayout:
+		orientation: 'vertical'
+		BoxLayout:
+			size_hint_y: .8
+			orientation: 'vertical'
+			BoxLayout:
+                spacing: 2
+				size_hint_y: .1
+				Labela:
+	    			text: 'Código'
+			    	size_hint_x: .2
+			    Labela:
+	    			text: 'Nombre'
+			        size_hint_x: .5
+			    Labela:
+	    			text: 'Cantidad'
+			        size_hint_x: .2
+			    Labela:
+	    			text: 'Precio'
+			        size_hint_x: .2
+			RV:
+				id: rvs
+		BoxLayout:
+			size_hint_y: .2
+			Button: 
+				text: 'Seleccionar'
+				on_release: root.seleccionar_articulo()
+			Button:
+				text: 'Salir'
+				on_release: root.dismiss()
+            # otros widgets dentro del BoxLayout
+            
 <SelectableLabelBoxLayaout>:
 
     # Draw a background to indicate selection
@@ -98,6 +144,7 @@
     background_color: hex ('#2E4744')
     background_normal: ''
 <Ventas>:
+    size_hint_min: 500, 500
     orientation: "vertical"
     BoxLayout:
         spacing:2

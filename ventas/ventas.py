@@ -1,14 +1,12 @@
 """"h"""
-
 from kivy.app import App
-
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.recycleview import RecycleView
 from kivy.uix.recycleview.views import RecycleDataViewBehavior
-
 from kivy.uix.recycleboxlayout import RecycleBoxLayout
 from kivy.uix.behaviors import FocusBehavior
 from kivy.uix.recycleview.layout import LayoutSelectionBehavior
+from kivy.uix.popup import Popup
 # from kivy.properties import BooleanProperty  # Aqui da error
 
 
@@ -18,6 +16,10 @@ inventario = {
     "producto2": {"id": 2, "nombre": "producto2", "cantidad": 20, "precio": 200},
     "producto3": {"id": 3, "nombre": "producto3", "cantidad": 30, "precio": 300},
 }
+
+
+class AgregarProductoPopup(Popup):
+    pass
 
 
 class Property:
@@ -142,27 +144,10 @@ class Ventas(BoxLayout):
         self.total += articulo['precio']
         self.ids.subtotal.text = "{:2f}".format(self.total)
 
-    def agregar_producto_nombre(self, nombre):
+    def agregar_producto_nombre(self, _):
         """Busqueda por nombre"""
-        try:
-            for producto in inventario.values():
-                if nombre == producto['nombre']:
-                    articulo = {}
-                    articulo['codigo'] = producto['id']
-                    articulo['nombre'] = producto['nombre']
-                    articulo['precio'] = producto['precio']
-                    articulo['cantidad_carrito'] = 1
-                    articulo['cantidad_inventario'] = producto['cantidad']
-                    articulo['precio_total'] = producto['precio']
-                    self.agregar_producto(articulo)
-                    self.ids.buscar_x_nombre.text = ''
-                    print("se encontro", articulo)
-                    print("se encontro", producto)
-                    break
-            else:
-                print("no encontrado")
-        except ValueError:
-            print("entrada no valida")
+        popup = AgregarProductoPopup()
+        popup.open()
 
     # """Implementacion de los botones"""
 
