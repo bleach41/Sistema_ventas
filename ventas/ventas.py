@@ -7,7 +7,7 @@ from kivy.uix.recycleboxlayout import RecycleBoxLayout
 from kivy.uix.behaviors import FocusBehavior
 from kivy.uix.recycleview.layout import LayoutSelectionBehavior
 from kivy.uix.popup import Popup
-# from kivy.properties import BooleanProperty  # Aqui da error
+from kivy.properties import BooleanProperty  # Aqui da error
 
 
 # inventario de prueba /ESTO DEBRIA HACERSE PARA LA BASE DE DATOS
@@ -15,6 +15,9 @@ inventario = [
     {"id": 111, "nombre": "leche", "cantidad": 10, "precio": 100},
     {"id": 222, "nombre": "huevo", "cantidad": 20, "precio": 200},
     {"id": 333, "nombre": "arroz", "cantidad": 30, "precio": 300},
+    {"id": 444, "nombre": "arroz negro", "cantidad": 30, "precio": 200},
+    {"id": 555, "nombre": "azucar", "cantidad": 30, "precio": 100},
+    {"id": 666, "nombre": "frijoles", "cantidad": 30, "precio": 500},
 ]
 
 
@@ -53,39 +56,41 @@ class AgregarProductoPopup(Popup):
                 self.agregar_producto_rv(articulo)
             self.dismiss()
 
+# AKI SE BORRRO LA IMPLEMENTACION DE BOOLEANPROPERTY PORQUE AUNKE
+# LA IMPORTACION DA ERROR SI SE ESTA USANDO...ESTO SE HABIA HECHO
+# PARA CONVENCION DEL VS CODE
+# class Property:
+#     ''' Tuve que implementar property porque no se importa de kivy '''
 
-class Property:
-    ''' Tuve que implementar property porque no se importa de kivy '''
-
-    def __init__(self, defaultvalue=None, options=None, **kwargs):
-        self.name = None
-        self.observers = []
-        self.dependencies = []
-        self.fbinds = {}
-        self.bindings = []
-        self.cache = {}
-        self.defaultvalue = defaultvalue
-        self.options = options or {}
-        self.kwargs = kwargs
+#     def __init__(self, defaultvalue=None, options=None, **kwargs):
+#         self.name = None
+#         self.observers = []
+#         self.dependencies = []
+#         self.fbinds = {}
+#         self.bindings = []
+#         self.cache = {}
+#         self.defaultvalue = defaultvalue
+#         self.options = options or {}
+#         self.kwargs = kwargs
 
 
-class BooleanProperty(Property):
-    ''' Adds selection and focus behaviour to the view. '''
+# class BooleanProperty(Property):
+#     ''' Adds selection and focus behaviour to the view. '''
 
-    def __init__(self, defaultvalue=True, **kw):
-        super().__init__(defaultvalue=defaultvalue, **kw)
+#     def __init__(self, defaultvalue=True, **kw):
+#         super().__init__(defaultvalue=defaultvalue, **kw)
 
 
 class SelectableRecycleBoxLayout(FocusBehavior, LayoutSelectionBehavior, RecycleBoxLayout):
 
     ''' Adds selection and focus behaviour to the view. '''
-    touch_deselect_last = True
+    touch_deselect_last = BooleanProperty(True)
 
 
 class SelectableLabelBoxLayaout(RecycleDataViewBehavior, BoxLayout):
     ''' Add selection support to the Label '''
     index = None
-    selected = True
+    selected = BooleanProperty(False)
     selectable = BooleanProperty(True)
     # background_color: ListProperty([0, 0, 0, 0])
 
@@ -116,20 +121,20 @@ class SelectableLabelBoxLayaout(RecycleDataViewBehavior, BoxLayout):
         else:
             rv.data[index]["seleccionado"] = False
             print("selection removed for {0}".format(rv.data[index]))
+
 # SelectableLabel para al Popup
 
 
 class SelectableLabelBoxLayaoutPopup(RecycleDataViewBehavior, BoxLayout):
     ''' Add selection support to the Label '''
     index = None
-    selected = True
+    selected = BooleanProperty(False)
     selectable = BooleanProperty(True)
-    # background_color: ListProperty([0, 0, 0, 0])
 
     def refresh_view_attrs(self, rv, index, data):
         ''' Catch and handle the view changes '''
         self.index = index
-        self.ids['numero'].text = str(1+index)
+        self.ids['id'].text = str(data['id'])
         self.ids['nombre_p'].text = data['nombre']
         self.ids['cantidad_p'].text = str(data['cantidad'])
         self.ids['precio_p'].text = str("{:.2f}".format(data['precio']))
@@ -181,7 +186,7 @@ class RV(RecycleView):
     def producto_seleccionado_rvs(self):
         indice = -1
         for i in range(len(self.data)):
-            if self.data[i]:
+            if self.data[i]['seleccionado']:
                 indice = i
                 break
         return indice
@@ -190,6 +195,8 @@ class RV(RecycleView):
         indice = self.producto_seleccionado_rvs()
         precio = 0
         if indice >= 0:
+            self._layout_manager.deselect_node(
+                self._layout_manager._last_selected_node)
             precio = self.data[indice]['precio_total']
             self.data.pop(indice)
             self.refresh_from_data()

@@ -53,13 +53,13 @@
     size_hint_min: 200, None
     canvas.before:
         Color:
-            rgba: hex('#4C695E') if self.selected else hex('#0E1311')
+            rgba: hex('#4C695E') if self.selected else hex('#869799')
         Rectangle:   
             pos: self.pos
             size: self.size
     Label:
         size_hint_min: 200, None
-        id: numero
+        id: id
         size_hint_x: 0.2
         color: (0,0,0,1)
     Label:
@@ -84,7 +84,7 @@
     size_hint_min: 200, None
     canvas.before:
         Color:
-            rgba: hex('#4C695E') if self.selected else hex('#0E1311')
+            rgba: hex('#4C695E') if self.selected else hex('#869799')
         Rectangle:   
             pos: self.pos
             size: self.size
