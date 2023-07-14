@@ -186,6 +186,15 @@ class RV(RecycleView):
                 break
         return indice
 
+    def eliminar_product_rv(self):
+        indice = self.producto_seleccionado_rvs()
+        precio = 0
+        if indice >= 0:
+            precio = self.data[indice]['precio_total']
+            self.data.pop(indice)
+            self.refresh_from_data()
+        return precio
+
 
 class Ventas(BoxLayout):
     """Class representing The ROOT"""
@@ -239,7 +248,9 @@ class Ventas(BoxLayout):
 
     def eliminar_product(self):
         """Implementar boton para eliminar u producto"""
-        print("se elimino")
+        menos_precio = self.ids.rvs.eliminar_product_rv()
+        self.total -= menos_precio
+        self.ids.subtotal.text = "{:2f}".format(self.total)
 
     def cantidad(self):
         """Implementar un boton para definir un acnatidad"""
