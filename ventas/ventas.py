@@ -180,6 +180,13 @@ class CambiarCantidadPopup(Popup):
             self.ids.invalid_cantidad.text = "Cantidad no valida"
 
 
+class NuevaCompraPopup(Popup):
+    def __init__(self, nueva_compra_callback, **kwargs):
+        super().__init__(**kwargs)
+        self.nueva_compra = nueva_compra_callback
+        self.ids.aceptar_nueva_compra.bind(on_release=self.dismiss)
+
+
 class RV(RecycleView):
     """IMPLEMENTACION DE RV/RecyleVi"""
 
@@ -248,6 +255,31 @@ class RV(RecycleView):
                 self.modificar_cantidad(False, nuevo_total)
 
 
+class PagarPopup(Popup):
+    def __init__(self, total, pagado_callback, **kwargs):
+        super(PagarPopup, self).__init__(**kwargs)
+        self.total = total
+        self.pagado = pagado_callback
+        self.ids.total.text = '$'+'{:.2f}'.format(self.total)
+        self.ids.boton_pagar.bind(on_release=self.dismiss)
+
+    def mostrar_cambio(self):
+        recibido = self.ids.recibido.text
+        try:
+            cambio = float(recibido)-float(self.total)
+            if cambio >= 0:
+                self.ids.cambio.text = '$'+'{:.2f}'.format(cambio)
+                self.ids.boton_pagar.disabled = False
+            else:
+                self.ids.cambio.text = 'Faltan: '+'$'+'{:.2f}'.format(cambio)
+        except:
+            self.ids.cambio.text = 'Pago no valido'
+# esto serviria igual
+    # def terminar_pago(self):
+    #     self.dismiss()
+    #     self.pagado()
+
+
 class Ventas(BoxLayout):
     """Class representing The ROOT"""
 
@@ -282,7 +314,7 @@ class Ventas(BoxLayout):
     def agregar_producto_rv(self, articulo):
         self.ids.rvs.agregar_articulo(articulo)
         self.total += articulo['precio']
-        self.ids.subtotal.text = "$" + "{:2f}".format(self.total)
+        self.ids.subtotal.text = "$" + "{:.2f}".format(self.total)
 
     def agregar_producto_nombre(self, nombre):
         """Busqueda por nombre"""
@@ -303,7 +335,7 @@ class Ventas(BoxLayout):
         """Implementar boton para eliminar u producto"""
         menos_precio = self.ids.rvs.eliminar_product_rv()
         self.total -= menos_precio
-        self.ids.subtotal.text = "$"+"{:2f}".format(self.total)
+        self.ids.subtotal.text = "$"+"{:.2f}".format(self.total)
 
     def modificar_cantidad(self, cambio=True, nuevo_total=None):
         """Implementar un boton para definir un acnatidad"""
@@ -312,15 +344,54 @@ class Ventas(BoxLayout):
             print("cantidad:")
         else:
             self.total = nuevo_total
-            self.ids.subtotal.text = "$"+"{:2f}".format(self.total)
+            self.ids.subtotal.text = "$"+"{:.2f}".format(self.total)
 
     def pagar(self):
         """Implementar un boton para definir un acnatidad"""
+        if self.ids.rvs.data:
+            popup = PagarPopup(self.total, self.pagado)
+            popup.open()
+        else:
+            self.ids.notificacion_falla.text = 'No hay nada que pagar'
         print("pagar")
 
-    def nueva_compra(self):
+    def pagado(self):
+        self.ids.notificacion_exito.text = 'PAGO CORRECTO'
+        self.ids.notificacion_falla.text = ''
+        self.ids.total.text = "$"+"{:.2f}".format(self.total)
+        self.ids.buscar_x_id.disabled = True
+        self.ids.buscar_x_nombre.disabled = False
+
+        nueva_cantidad = []
+        for producto in self.ids.rvs.data:
+            cantidad = producto['cantidad_inventario'] - \
+                producto['cantidad_carrito']
+            if cantidad >= 0:
+                nueva_cantidad.append(
+                    {'id': producto['id'], 'cantidad': cantidad})
+            else:
+                nueva_cantidad.append({'id': producto['id'], 'cantidad': 0})
+        for i in nueva_cantidad:
+            resultado = next(
+                (producto for producto in inventario if producto['id'] == i['id']), None)
+            resultado['cantidad'] = i['cantidad']
+
+    def nueva_compra(self, desde_popup=False):
         """Implementar un boton para definir un acnatidad"""
-        print("nueva compra")
+        if desde_popup:
+            self.ids.rvs.data = []
+            self.total = 0.0
+            self.ids.subtotal.text = '00.00'
+            self.ids.total.text = '00.00'
+            self.ids.notificacion_exito.text = 'PAGO CORRECTO'
+            self.ids.notificacion_falla.text = ''
+            self.ids.notificacion_exito.text = ''
+            self.ids.buscar_x_id.disabled = False
+            self.ids.buscar_x_nombre.disabled = False
+            self.ids.rvs.refresh_from_data()
+        elif len(self.ids.rvs.data):
+            popup = NuevaCompraPopup(self.nueva_compra)
+            popup.open()
 
     def cancelar(self):
         """Implementar un boton para definir un acnatidad"""

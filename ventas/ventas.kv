@@ -1,6 +1,76 @@
 #:kivy 2.2.1
 #:import hex kivy.utils.get_color_from_hex
 
+<NuevaCompraPopup>:
+    size_hint_min: 300, 300
+    size_hint: .3 , .3
+    title:"Nueva compra"
+    BoxLayout:
+        orientation:'vertical'
+        Label:
+            text:'Realizar nueva compra?'
+        BoxLayout:
+            size_hint_y: .5
+            Button:
+                id: aceptar_nueva_compra
+                on_release: root.nueva_compra(True)
+                text:"SI"
+            Button:
+                on_release: root.dismiss()
+                text:'No'        
+
+<PagarPopup>:
+
+	size_hint: .4, .5
+    size_hint_min: 400 , 500
+	title: 'Pagar'
+	BoxLayout:
+		orientation: 'vertical'
+		spacing: .5
+		padding: .5
+		BoxLayout:
+			size_hint_y: .25
+			Label: 
+				size_hint_x: .5
+				text: 'Total a Pagar: '
+			Label:
+				id: total
+				size_hint_x: .5
+		BoxLayout:
+			size_hint_y: .25
+			Label:
+				size_hint_x: .5
+				text: 'Recibido: '
+			BoxLayout:
+				size_hint_x: .5
+				orientation: 'vertical'
+				TextInput:
+					id: recibido
+					hint_text: 'Cantidad recibida'
+					multiline: False
+					on_text_validate: root.mostrar_cambio()
+				Button:
+					text: 'Aceptar'
+					on_release: root.mostrar_cambio()
+		BoxLayout:
+			size_hint_y: .25
+			Label:
+				size_hint_x: .5
+				text: 'Cambio: '
+			Label:
+				id: cambio
+				size_hint_x: .5
+		BoxLayout:
+			size_hint_y: .25
+			Button: 
+				id: boton_pagar
+				disabled: True
+				text: 'Terminar Pago'
+				on_release: root.pagado()
+			Button:
+				text: 'Cancelar'
+				on_release: root.dismiss()
+
 <CambiarCantidadPopup>:
     size_hint_min: 330, 300
 	size_hint: .33, .3
@@ -326,6 +396,7 @@
                     on_text_validate: root.agregar_producto_id(self.text)
                     foreground_color: hex ('#000000')
                     hint_text: "Buscar por id" 
+                    disabled:False
 
                 TextInput:
                     # size_hint: None, None 
@@ -337,6 +408,7 @@
                     on_text_validate: root.agregar_producto_nombre(self.text)
                     foreground_color: hex ('#000000') 
                     hint_text: "Buscar por nombre"
+                    disabled:False
                     
             BoxLayout:
                 spacing: 2
@@ -395,13 +467,20 @@
                 Labeloscuro:
                     text:"total"
                 Labeloscuro:
+                    id: total
                     text:"00.00"     
 
             BoxLayout:
                 orientation: "vertical"
                 Label:
-                    size_hint_y: .85
-                    text: "Cuadricula de Importe"
+                    color: hex ('#FF0000')
+                    id: notificacion_falla
+                    size_hint_y: .445
+                    text: "notificacion_falla"
+                Label:
+                    color: hex ('#002BFF')
+                    id: notificacion_exito
+                    size_hint_y: .445   
 
                 GridLayout:
                     spacing:2
