@@ -1,6 +1,56 @@
 #:kivy 2.2.1
 #:import hex kivy.utils.get_color_from_hex
 
+<CambiarCantidadPopup>:
+    size_hint_min: 330, 300
+	size_hint: .33, .3
+	title: 'Nueva cantidad'
+    auto_dismiss: False
+	BoxLayout:
+		orientation: 'vertical'
+		BoxLayout:
+			size_hint_y: .4
+			orientation: 'vertical'
+			TextInput:
+                
+                multiline: False
+                size_hint_y: 0.15
+                id: nueva_cantidad_txt
+                hint_text: "introdcuce la cantidad"
+        GridLayout:
+            canvas:
+                Color:
+                    rgba: [1, 1, 0, 0]
+            
+                Rectangle:
+                    size: self.size[0], self.size[1]
+                    pos: self.pos
+            
+            size_hint_min:0.08, 0.08
+            cols:2
+            row:2        
+            Label:
+                id: producto
+                size_hint_y: 0.5 
+
+            Label:
+                id: cantidad
+                size_hint_y: 0.5 
+
+            Label:
+                id: invalid_cantidad
+                size_hint_y: 0.5   
+
+		BoxLayout:
+			size_hint_y: .4
+			Button: 
+				text: 'Seleccionar'
+				on_release: root.validar_cantidad_popup(root.ids.nueva_cantidad_txt.text)
+			Button:
+				text: 'Cancelar'
+				on_release: root.dismiss()
+
+
 <Labela@Label>:
     canvas.before:
         Color:
@@ -15,6 +65,7 @@
     size_hint_min: 550, 500
 	size_hint: .55, .5
 	title: 'Productos'
+    auto_dismiss: False
 	BoxLayout:
 		orientation: 'vertical'
 		BoxLayout:
@@ -260,12 +311,16 @@
             orientation:"vertical"
             GridLayout:
                 spacing: 2
-                size_hint_y: .06
+                size_hint_y: 0.08
+                size_hint_min_y: 0.1
                 pos_hint: {'center_x': 0.5, 'center_y': .97}
                 row: 2
                 cols: 2
 
                 TextInput:
+                    padding: [1, 1, 1, 1]
+                    cursor_color: (0,0,0,1)
+                    size_hint_min_y: 0.08
                     id: buscar_x_id
                     multiline: False
                     on_text_validate: root.agregar_producto_id(self.text)
@@ -273,11 +328,16 @@
                     hint_text: "Buscar por id" 
 
                 TextInput:
+                    # size_hint: None, None 
+                    padding: [1, 1, 1, 1]
+                    cursor_color: (0,0,0,1)
+                    size_hint_min_y: 0.08
                     id: buscar_x_nombre
                     multiline: False
                     on_text_validate: root.agregar_producto_nombre(self.text)
                     foreground_color: hex ('#000000') 
                     hint_text: "Buscar por nombre"
+                    
             BoxLayout:
                 spacing: 2
                 size_hint_y: .05 
@@ -311,7 +371,7 @@
                 Botonc:
                     id: cantidad
                     text:"cantidad"
-                    on_release: root.cantidad()
+                    on_release: root.modificar_cantidad()
             
         BoxLayout:
             orientation:"vertical"

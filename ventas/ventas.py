@@ -158,6 +158,27 @@ class SelectableLabelBoxLayaoutPopup(RecycleDataViewBehavior, BoxLayout):
             rv.data[index]["seleccionado"] = False
             print("selection removed for {0}".format(rv.data[index]))
 
+# POPUP PARA CAMBIAR LA CANTIDAD
+
+
+class CambiarCantidadPopup(Popup):
+    def __init__(self, data, actualizar_articulo_callback, **kwargs):
+        super().__init__(**kwargs)
+        self.data = data
+        self.actualizar_articulo = actualizar_articulo_callback
+        self.ids.producto.text = "producto: " + self.data['nombre']
+        self.ids.cantidad.text = "cant: " + str(self.data['cantidad_carrito'])
+
+    def validar_cantidad_popup(self, text_input):
+        try:
+            nueva_cant = int(text_input)
+            print(text_input, nueva_cant)
+            self.ids.invalid_cantidad.text = ''
+            self.actualizar_articulo(nueva_cant)
+            self.dismiss()
+        except:
+            self.ids.invalid_cantidad.text = "Cantidad no valida"
+
 
 class RV(RecycleView):
     """IMPLEMENTACION DE RV/RecyleVi"""
@@ -165,6 +186,7 @@ class RV(RecycleView):
     def __init__(self, **kwargs):
         super(RV, self).__init__(**kwargs)
         self.data = []
+        self.modificar_cantidad = None
 
     def agregar_articulo(self, articulo):
         articulo['seleccionado'] = False
@@ -202,6 +224,29 @@ class RV(RecycleView):
             self.refresh_from_data()
         return precio
 
+    def modificar_cantidad_rv(self):
+        indice = self.producto_seleccionado_rvs()
+        if indice >= 0:
+            popup = CambiarCantidadPopup(
+                self.data[indice], self.actualizar_articulo)
+            popup.open()
+
+    def actualizar_articulo(self, nueva_cant):
+        indice = self.producto_seleccionado_rvs()
+        if indice >= 0:
+            if nueva_cant == 0:
+                self.data.pop(indice)
+                self._layout_manager.deselect_node(
+                    self._layout_manager._last_selected_node)
+            else:
+                self.data[indice]['cantidad_carrito'] = nueva_cant
+                self.data[indice]['precio_total'] = self.data[indice]['precio'] * nueva_cant
+                self.refresh_from_data()
+                nuevo_total = 0
+                for data in self.data:
+                    nuevo_total += data['precio_total']
+                self.modificar_cantidad(False, nuevo_total)
+
 
 class Ventas(BoxLayout):
     """Class representing The ROOT"""
@@ -209,6 +254,7 @@ class Ventas(BoxLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.total = 0.0
+        self.ids.rvs.modificar_cantidad = self.modificar_cantidad
 
     def agregar_producto_id(self, codigo):
         """agregar producto el RV"""
@@ -236,7 +282,7 @@ class Ventas(BoxLayout):
     def agregar_producto_rv(self, articulo):
         self.ids.rvs.agregar_articulo(articulo)
         self.total += articulo['precio']
-        self.ids.subtotal.text = "{:2f}".format(self.total)
+        self.ids.subtotal.text = "$" + "{:2f}".format(self.total)
 
     def agregar_producto_nombre(self, nombre):
         """Busqueda por nombre"""
@@ -257,11 +303,16 @@ class Ventas(BoxLayout):
         """Implementar boton para eliminar u producto"""
         menos_precio = self.ids.rvs.eliminar_product_rv()
         self.total -= menos_precio
-        self.ids.subtotal.text = "{:2f}".format(self.total)
+        self.ids.subtotal.text = "$"+"{:2f}".format(self.total)
 
-    def cantidad(self):
+    def modificar_cantidad(self, cambio=True, nuevo_total=None):
         """Implementar un boton para definir un acnatidad"""
-        print("cantidad:")
+        if cambio:
+            self.ids.rvs.modificar_cantidad_rv()
+            print("cantidad:")
+        else:
+            self.total = nuevo_total
+            self.ids.subtotal.text = "$"+"{:2f}".format(self.total)
 
     def pagar(self):
         """Implementar un boton para definir un acnatidad"""
