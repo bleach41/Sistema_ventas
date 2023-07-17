@@ -8,7 +8,13 @@ from kivy.uix.behaviors import FocusBehavior
 from kivy.uix.recycleview.layout import LayoutSelectionBehavior
 from kivy.uix.popup import Popup
 from kivy.properties import BooleanProperty  # Aqui da error
+from kivy.clock import Clock
+from datetime import datetime
+from datetime import timedelta
 
+from kivy.lang import Builder
+
+Builder.load_file('ventas/ventas.kv')
 
 # inventario de prueba /ESTO DEBRIA HACERSE PARA LA BASE DE DATOS
 inventario = [
@@ -287,6 +293,14 @@ class Ventas(BoxLayout):
         super().__init__(**kwargs)
         self.total = 0.0
         self.ids.rvs.modificar_cantidad = self.modificar_cantidad
+        self.hora = datetime.now()
+        self.ids.fecha.text = self.hora.strftime("%d/%m/%y")
+        Clock.schedule_interval(self.actualizar_hora, 1)
+        self.ids.hora.text = self.hora.strftime("%H:%M:%S")
+
+    def actualizar_hora(self, *args):
+        self.hora = self.hora + timedelta(seconds=1)
+        self.ids.hora.text = self.hora.strftime("%H:%M:%S")
 
     def agregar_producto_id(self, codigo):
         """agregar producto el RV"""
@@ -325,11 +339,11 @@ class Ventas(BoxLayout):
 
     def admin(self):
         """Implementar boton para loguear"""
-        print("presionaste admin")
+        self.parent.parent.current = 'scrn_admin'
 
     def salir(self):
         """Implementar boton para salir del user"""
-        print("saliendo")
+        self.parent.parent.current = 'scrn_signin'
 
     def eliminar_product(self):
         """Implementar boton para eliminar u producto"""
