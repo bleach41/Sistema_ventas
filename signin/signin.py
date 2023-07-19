@@ -7,8 +7,10 @@ Builder.load_file('signin/signin.kv')
 
 
 class SigninWindow(BoxLayout):
-    # def __init__(self, **kwargs):
-    #     super().__init__(**kwargs)
+    def __init__(self, poner_usuario_callback, **kwargs):
+        super().__init__(**kwargs)
+
+        self.poner_usuarios = poner_usuario_callback
 
     def verificar_usuario(self, username, password):
         connection = QueriesSQLite.create_connection(
@@ -20,23 +22,23 @@ class SigninWindow(BoxLayout):
         else:
             usuario = {}
             for user in users:
-                print(user)
-                print('*************')
                 if username == user[0]:
-                    print('###############')
                     usuario['username'] = user[0]
                     usuario['nombre'] = user[1]
                     usuario['password'] = user[2]
                     usuario['tipo'] = user[3]
+
                     break
             if usuario:
-                print('!!!!!!!!!!!!!!!!!!!!!!!!!!')
                 if usuario['password'] == password:
-                    print('@@@@@@@@@@@@@@@@@')
                     self.ids.username.text = ''
                     self.ids.password.text = ''
                     self.ids.signin_notificacion.text = ''
-                    self.parent.parent.current = 'scrn_ventas'
+                    if usuario['tipo'] == 'trabajador':
+                        self.parent.parent.current = 'scrn_ventas'
+                    else:
+                        self.parent.parent.current = 'scrn_admin'
+                    self.poner_usuarios(usuario)
                 else:
                     self.ids.signin_notificacion.text = 'Nombre de usario incorrecto'
 

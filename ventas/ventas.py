@@ -11,6 +11,7 @@ from kivy.properties import BooleanProperty  # Aqui da error
 from kivy.clock import Clock
 from datetime import datetime
 from datetime import timedelta
+from sqlqueries import QueriesSQLite
 
 from kivy.lang import Builder
 
@@ -34,16 +35,20 @@ class AgregarProductoPopup(Popup):
         self.agregar_producto_rv = gregar_producto_rvs_callback
 
     def coincidencia_product(self):
+        connection = QueriesSQLite.create_connection(
+            "ventas/db_ventas/inventario.sqlite")
+        inventario_sql = QueriesSQLite.execute_read_query(
+            connection, "SELECT * from productos")
         self.open()
-        for nombre in inventario:
+        for nombre in inventario_sql:
             print("##################", nombre)
-            if nombre['nombre'].lower().find(self.input_nombre.lower()) >= 0:
+            if nombre[1].lower().find(self.input_nombre.lower()) >= 0:
                 producto = {}
                 producto = {
-                    "id": nombre['id'],
-                    "nombre": nombre['nombre'],
-                    "cantidad": nombre['cantidad'],
-                    "precio": nombre['precio']
+                    "id": nombre[0],
+                    "nombre": nombre[1],
+                    "precio": nombre[2],
+                    "cantidad": nombre[3]
                 }
                 self.ids.rvs.agregar_articulo(producto)
 
@@ -60,6 +65,7 @@ class AgregarProductoPopup(Popup):
             articulo['precio_total'] = producto['precio']
             if callable(self.agregar_producto_rv):
                 self.agregar_producto_rv(articulo)
+                # self.ids.buscar_x_nombre.clea= ''
             self.dismiss()
 
 # AKI SE BORRRO LA IMPLEMENTACION DE BOOLEANPROPERTY PORQUE AUNKE
@@ -302,20 +308,31 @@ class Ventas(BoxLayout):
         self.hora = self.hora + timedelta(seconds=1)
         self.ids.hora.text = self.hora.strftime("%H:%M:%S")
 
-    def agregar_producto_id(self, codigo):
+    def poner_usuario(self, usuario):
+        self.ids.bienvenido.text = 'Hola ' + usuario['nombre']
+        if usuario['tipo'] == 'trabajador':
+            self.ids.admin_boton.disabled = True
+        else:
+            self.ids.admin_boton.disabled = False
+
+    def agregar_producto_id(self, id):
         """agregar producto el RV"""
+        connection = QueriesSQLite.create_connection(
+            "ventas/db_ventas/inventario.sqlite")
+        inventario_sql = QueriesSQLite.execute_read_query(
+            connection, "SELECT * from productos")
         try:
-            codigo = int(codigo)
-            if isinstance(codigo, int):
-                for producto in inventario:
-                    if codigo == producto['id']:
+            id = int(id)
+            if isinstance(id, int):
+                for producto in inventario_sql:
+                    if id == producto[0]:
                         articulo = {}
-                        articulo['id'] = producto['id']
-                        articulo['nombre'] = producto['nombre']
-                        articulo['precio'] = producto['precio']
+                        articulo['id'] = producto[0]
+                        articulo['nombre'] = producto[1]
+                        articulo['precio'] = producto[2]
                         articulo['cantidad_carrito'] = 1
-                        articulo['cantidad_inventario'] = producto['cantidad']
-                        articulo['precio_total'] = producto['precio']
+                        articulo['cantidad_inventario'] = producto[3]
+                        articulo['precio_total'] = producto[2]
                         self.agregar_producto_rv(articulo)
                         self.ids.buscar_x_id.text = ''
                         print("se encontro", articulo)
@@ -343,7 +360,10 @@ class Ventas(BoxLayout):
 
     def salir(self):
         """Implementar boton para salir del user"""
-        self.parent.parent.current = 'scrn_signin'
+        if self.ids.rvs.data:
+            self.ids.notificacion_falla.text = 'LIMPIA EL CARRITO'
+        else:
+            self.parent.parent.current = 'scrn_signin'
 
     def eliminar_product(self):
         """Implementar boton para eliminar u producto"""
@@ -375,20 +395,24 @@ class Ventas(BoxLayout):
         self.ids.total.text = "$"+"{:.2f}".format(self.total)
         self.ids.buscar_x_id.disabled = True
         self.ids.buscar_x_nombre.disabled = False
-
-        nueva_cantidad = []
+        self.ids.pagar.disabled = True
+        connection = QueriesSQLite.create_connection(
+            "ventas/db_ventas/inventario.sqlite")
+        actualizar = """
+        UPDATE
+            productos
+        SET
+            cantidad=?
+        WHERE
+            id=?        
+        """
         for producto in self.ids.rvs.data:
-            cantidad = producto['cantidad_inventario'] - \
-                producto['cantidad_carrito']
-            if cantidad >= 0:
-                nueva_cantidad.append(
-                    {'id': producto['id'], 'cantidad': cantidad})
-            else:
-                nueva_cantidad.append({'id': producto['id'], 'cantidad': 0})
-        for i in nueva_cantidad:
-            resultado = next(
-                (producto for producto in inventario if producto['id'] == i['id']), None)
-            resultado['cantidad'] = i['cantidad']
+            nueva_cantidad = 0
+            if producto['cantidad_inventario']-producto['cantidad_carrito'] >= 0:
+                nueva_cantidad = producto['cantidad_inventario'] - \
+                    producto['cantidad_carrito']
+            producto_tuple = (nueva_cantidad, producto['id'])
+            QueriesSQLite.execute_query(connection, actualizar, producto_tuple)
 
     def nueva_compra(self, desde_popup=False):
         """Implementar un boton para definir un acnatidad"""
@@ -402,6 +426,7 @@ class Ventas(BoxLayout):
             self.ids.notificacion_exito.text = ''
             self.ids.buscar_x_id.disabled = False
             self.ids.buscar_x_nombre.disabled = False
+            self.ids.pagar.disabled = False
             self.ids.rvs.refresh_from_data()
         elif len(self.ids.rvs.data):
             popup = NuevaCompraPopup(self.nueva_compra)
@@ -410,6 +435,13 @@ class Ventas(BoxLayout):
     def cancelar(self):
         """Implementar un boton para definir un acnatidad"""
         print("cancelar")
+        connection = QueriesSQLite.create_connection(
+            "ventas/db_ventas/inventario.sqlite")
+        select_products = "SELECT * from productos"
+        productos = QueriesSQLite.execute_read_query(
+            connection, select_products)
+        for producto in productos:
+            print(producto)
 
     def imprimir(self):
         """Implementar un boton para definir un acnatidad"""

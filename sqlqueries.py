@@ -38,14 +38,14 @@ if __name__ == "__main__":
     connection = QueriesSQLite.create_connection(
         "ventas/db_ventas/inventario.sqlite")
 
-    # create_product_table = """CREATE TABLE IF NOT EXISTS productos(
-    #                             id TEXT PRIMARY KEY,
-    #                             nombre TEXT NOT NULL,
-    #                             precio REAL NOT NULL,
-    #                             cantidad INTEGER NOT NULL
-    #                             );
-    #                         """
-    # QueriesSQLite.execute_query(connection, create_product_table, tuple())
+    create_product_table = """CREATE TABLE IF NOT EXISTS productos(
+                                id INTEGER PRIMARY KEY,
+                                nombre TEXT NOT NULL,
+                                precio REAL NOT NULL,
+                                cantidad INTEGER NOT NULL
+                                );
+                            """
+    QueriesSQLite.execute_query(connection, create_product_table, tuple())
 
     # create_user_table = """
     #                         CREATE TABLE IF NOT EXISTS usuarios(
@@ -57,20 +57,20 @@ if __name__ == "__main__":
     #                     """
     # QueriesSQLite.execute_query(connection, create_user_table, tuple())
 
-    # crear_producto = """
-    #                     INSERT INTO
-    #                     productos (id, nombre, precio, cantidad)
-    #                     VALUES
-    #                         ('111', 'leche 1l', 20, 20),
-    #                         ('222', 'cereal 500g', 50, 15),
-    #                         ('333', 'yogurt 1L', 25, 10),
-    #                         ('444', 'helado 2L', 80, 20),
-    #                         ('555', 'alimento para perro 20kg', 750, 5),
-    #                         ('666', 'shampoo', 100, 25),
-    #                         ('777', 'papel higiénico 4 rollos', 35, 30),
-    #                         ('888', 'jabón para trastes', 65, 5)
-    #                 """
-    # QueriesSQLite.execute_query(connection, crear_producto, tuple())
+    crear_producto = """
+                        INSERT INTO
+                        productos (id, nombre, precio, cantidad)
+                        VALUES
+                            (111, 'leche 1l', 20, 20),
+                            (222, 'cereal 500g', 50, 15),
+                            (333, 'yogurt 1L', 25, 10),
+                            (444, 'helado 2L', 80, 20),
+                            (555, 'alimento para perro 20kg', 750, 5),
+                            (666, 'shampoo', 100, 25),
+                            (777, 'papel higiénico 4 rollos', 35, 30),
+                            (888, 'jabón para trastes', 65, 5)
+                    """
+    QueriesSQLite.execute_query(connection, crear_producto, tuple())
 
     # select_products = "SELECT * from productos"
     # productos = QueriesSQLite.execute_read_query(connection, select_products)
@@ -91,8 +91,8 @@ if __name__ == "__main__":
     # for usuario in usuarios:
     #     print("type:", type(usuario), "usuario:", usuario)
 
-    # nueva_data = ('Persona 55', '123', 'admin', 'persona1')
-    # actualizar = """UPDATE usuarios SET nombre=?, password=?, tipo = ? WHERE username = ? """
+    # nueva_data = ('yo', 'TONY', '1', 'admin')
+    # actualizar = """UPDATE usuarios SET username=?, nombre=?, password=?, tipo = ?"""
     # QueriesSQLite.execute_query(connection, actualizar, nueva_data)
 
     # select_users = "SELECT * from usuarios"
@@ -105,12 +105,12 @@ if __name__ == "__main__":
     # for producto in productos:
     #     print(producto)
 
-    select_users = "SELECT * from usuarios"
-    usuarios = QueriesSQLite.execute_read_query(connection, select_users)
-    for usuario in usuarios:
-        print("type:", type(usuario), "usuario:", usuario)
+    # select_users = "SELECT * from usuarios"
+    # usuarios = QueriesSQLite.execute_read_query(connection, select_users)
+    # for usuario in usuarios:
+    #     print("type:", type(usuario), "usuario:", usuario)
 
-    # producto_a_borrar = ('888',)
+    # producto_a_borrar = ('111', '222', '333', '444', '555', '666', '777',)
     # borrar = """DELETE from productos where id = ?"""
     # QueriesSQLite.execute_query(connection, borrar, producto_a_borrar)
 
@@ -120,3 +120,13 @@ if __name__ == "__main__":
     #     print(producto)
 
     # connection.close()
+
+# conn = sqlite3.connect('ventas/db_ventas/inventario.sqlite')
+# c = conn.cursor()
+
+# # Ejecutar la sentencia SQL para borrar la tabla
+# c.execute("DROP TABLE productos")
+
+# # Confirmar los cambios y cerrar la conexión
+# conn.commit()
+# conn.close()

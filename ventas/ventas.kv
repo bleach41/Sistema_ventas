@@ -132,28 +132,39 @@
     
     
 <AgregarProductoPopup>:
-    size_hint_min: 550, 500
-	size_hint: .55, .5
+    size_hint_min: 800, 500
+	size_hint: .8, .5
 	title: 'Productos'
     auto_dismiss: False
 	BoxLayout:
+        size_hint_min_x: 200
 		orientation: 'vertical'
 		BoxLayout:
 			size_hint_y: .8
 			orientation: 'vertical'
 			BoxLayout:
+                pos: self.pos
+                size: self.size
                 spacing: 2
 				size_hint_y: .1
 				Labela:
+                    size: self.size
+  
 	    			text: 'Código'
 			    	size_hint_x: .2
 			    Labela:
+                    size: self.size
+   
 	    			text: 'Nombre'
 			        size_hint_x: .5
 			    Labela:
+                    size: self.size
+                    size_hint_min_x:200
 	    			text: 'En inventario'
 			        size_hint_x: .2
 			    Labela:
+                    size: self.size
+
 	    			text: 'Precio'
 			        size_hint_x: .2
 			RV:
@@ -319,6 +330,7 @@
                     pos: self.pos
 
             Label:
+                id: bienvenido
                 text_size: (None, None)
                 size: 200, 100
                 pos_hint: {'center_x': 0.5, 'center_y': 0.5}
@@ -476,7 +488,6 @@
                     color: hex ('#FF0000')
                     id: notificacion_falla
                     size_hint_y: .445
-                    text: "notificacion_falla"
                 Label:
                     color: hex ('#002BFF')
                     id: notificacion_exito
