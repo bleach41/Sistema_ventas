@@ -13,6 +13,7 @@ from kivy.lang import Builder
 from kivy.uix.dropdown import DropDown
 from sqlqueries import QueriesSQLite
 from datetime import datetime, timedelta
+import csv
 Builder.load_file('admin/admin.kv')
 
 
@@ -270,7 +271,38 @@ class VistaVentas(Screen):
         super().__init__(**kw)
 
     def crear_csv(self):
-        pass
+        connection = QueriesSQLite.create_connection(
+            "ventas/db_ventas/inventario.sqlite")
+        select_item_query = """SELECT nombre FROM productos WHERE id = ? """
+        if self.ids.ventas_rv.data:
+            csv_nombre = "ventas_csv/" + self.ids.date_id.text+".csv"
+            productos_csv = []
+            total = 0
+            for venta in self.productos_actuales:
+                for item in venta:
+                    item_found = next(
+                        (producto for producto in productos_csv if producto['id'] == item[3]), None)
+                    total += item[2]*item[4]
+                    if item_found:
+                        item_found['cantidad'] += item[4]
+                        item_found['precio_total'] = item_found['precio'] * \
+                            item_found['cantidad']
+                    else:
+                        nombre = QueriesSQLite.execute_read_query(
+                            connection, select_item_query, (item[3],))[0][0]
+                        productos_csv.append(
+                            {'nombre': nombre, 'id': item[3], 'cantidad': item[4], 'precio': item[2], 'precio_total': item[2]*item[4]})
+            fieldname = ['nombre', 'id', 'cantidad', 'precio', 'precio_total']
+            bottom = [{'precio_total': total}]
+            with open(csv_nombre, 'w', encoding='UTF8', newline='') as f:
+                writer = csv.DictWriter(f, fieldnames=fieldname)
+                writer.writeheader()
+                writer.writerows(productos_csv)
+                writer.writerows(bottom)
+
+            pass
+        else:
+            self.ids.notificacion.text = 'NO HAY VENTAS PARA GUARDAR'
 
     def mas_info(self):
         indice = self.ids.ventas_rv.dato_seleccionado()
@@ -352,6 +384,7 @@ class VistaVentas(Screen):
         self.ids.initial_date.text = ''
         self.ids.last_date.text = ''
         self.ids.single_date.text = ''
+        self.ids.notificacion.text = 'Datos de Ventas'
 
 
 class VistaProductos(Screen):
