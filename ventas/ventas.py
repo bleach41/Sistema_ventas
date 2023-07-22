@@ -294,9 +294,11 @@ class PagarPopup(Popup):
 
 class Ventas(BoxLayout):
     """Class representing The ROOT"""
+    usuario = None
 
-    def __init__(self, **kwargs):
+    def __init__(self, actualizar_productos_callback, **kwargs):
         super().__init__(**kwargs)
+        self.actualizar_productos = actualizar_productos_callback
         self.total = 0.0
         self.ids.rvs.modificar_cantidad = self.modificar_cantidad
         self.hora = datetime.now()
@@ -310,6 +312,7 @@ class Ventas(BoxLayout):
 
     def poner_usuario(self, usuario):
         self.ids.bienvenido.text = 'Hola ' + usuario['nombre']
+        self.usuario = usuario
         if usuario['tipo'] == 'trabajador':
             self.ids.admin_boton.disabled = True
         else:
@@ -406,13 +409,27 @@ class Ventas(BoxLayout):
         WHERE
             id=?        
         """
+        actualizar_admin = []
+
+        venta = """INSERT INTO ventas (total, fecha, username) VALUES (?, ?, ?) """
+        ventas_tuple = (self.total, self.hora, self.usuario['username'])
+        venta_id = QueriesSQLite.execute_query(connection, venta, ventas_tuple)
+        ventas_detalle = """ INSERT INTO ventas_detalle (id_venta, precio, producto, cantidad) VALUES (?, ?, ?, ?)"""
+
         for producto in self.ids.rvs.data:
             nueva_cantidad = 0
             if producto['cantidad_inventario']-producto['cantidad_carrito'] >= 0:
                 nueva_cantidad = producto['cantidad_inventario'] - \
                     producto['cantidad_carrito']
             producto_tuple = (nueva_cantidad, producto['id'])
+            ventas_detalle_tuple = (
+                venta_id, producto['precio'], producto['id'], producto['cantidad_carrito'])
+            actualizar_admin.append(
+                {'id': producto['id'], 'cantidad': nueva_cantidad})
+            QueriesSQLite.execute_query(
+                connection, ventas_detalle, ventas_detalle_tuple)
             QueriesSQLite.execute_query(connection, actualizar, producto_tuple)
+        self.actualizar_productos(actualizar_admin)
 
     def nueva_compra(self, desde_popup=False):
         """Implementar un boton para definir un acnatidad"""

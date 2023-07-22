@@ -21,14 +21,15 @@ class SigninWindow(BoxLayout):
             self.ids.signin_notificacion.text = 'Completa el formulario'
         else:
             usuario = {}
-            for user in users:
-                if username == user[0]:
-                    usuario['username'] = user[0]
-                    usuario['nombre'] = user[1]
-                    usuario['password'] = user[2]
-                    usuario['tipo'] = user[3]
+            if users:
+                for user in users:
+                    if username == user[0]:
+                        usuario['username'] = user[0]
+                        usuario['nombre'] = user[1]
+                        usuario['password'] = user[2]
+                        usuario['tipo'] = user[3]
 
-                    break
+                        break
             if usuario:
                 if usuario['password'] == password:
                     self.ids.username.text = ''
