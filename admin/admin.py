@@ -14,6 +14,8 @@ from kivy.uix.dropdown import DropDown
 from sqlqueries import QueriesSQLite
 from datetime import datetime, timedelta
 import csv
+from pathlib import Path
+import os
 Builder.load_file('admin/admin.kv')
 
 
@@ -259,7 +261,7 @@ class InfoVentaPopup(Popup):
         total_dinero = 0
         for articulo in self.venta:
             total_items += articulo['cantidad']
-            total_dinero += articulo['precio']
+            total_dinero += articulo['precio'] * articulo['cantidad']
         self.ids.total_items.text = str(total_items)
         self.ids.total_dinero.text = '$'+str('{:.2f}'.format(total_dinero))
         self.ids.info_rv.agregar_datos(self.venta)
@@ -275,7 +277,12 @@ class VistaVentas(Screen):
             "ventas/db_ventas/inventario.sqlite")
         select_item_query = """SELECT nombre FROM productos WHERE id = ? """
         if self.ids.ventas_rv.data:
-            csv_nombre = "ventas_csv/" + self.ids.date_id.text+".csv"
+            path = Path(__file__).absolute().parent
+            csv_nombre = path.__str__()+'\\ventas_cvs\\'
+            isExist = os.path.exists(csv_nombre)
+            if not isExist:
+                os.makedirs(csv_nombre)
+            csv_nombre += self.ids.date_id.text+".csv"
             productos_csv = []
             total = 0
             for venta in self.productos_actuales:
