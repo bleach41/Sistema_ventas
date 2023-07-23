@@ -1,0 +1,60 @@
+
+class UsuarioPopup(Popup):
+    def __init__(self, agregar_callback, **kwargs):
+        super().__init__(**kwargs)
+        self.agregar_usuario = agregar_callback
+
+    def abrir(self, agregar, usuario=None):
+        if agregar:
+            self.ids.usuario_info_1.text = 'Agregar usuario'
+            self.ids.usuario_username.disabled = False
+        else:
+            self.ids.usuario_info_1.text = 'Modificar usuario'
+            self.ids.usuario_username.text = usuario['username']
+            self.ids.usuario_username.disabled = True
+            self.ids.usuario_nombre.text = usuario['nombre']
+            self.ids.usuario_password.text = usuario['password']
+            if usuario['tipo'] == 'admin':
+                self.ids.admin_tipo.state = 'down'
+            else:
+                self.ids.trabajador_tipo.state = 'down'
+        self.open()
+
+    def verificar_aceptar(self, username, nombre, password, tipo):
+        alert1 = 'Falta: '
+        validado = {}
+        if not username:
+            alert1 += 'Username. '
+            validado['username'] = False
+        else:
+            validado['username'] = username
+
+        if not nombre:
+            alert1 += 'Nombre. '
+            validado['nombre'] = False
+        else:
+            validado['nombre'] = nombre.lower()
+
+        if not password:
+            alert1 += 'Password. '
+            validado['password'] = False
+        else:
+            validado['password'] = password
+
+        if ipo == 'normal' and tipo == 'normal':
+            alert1 += 'Tipo. '
+            validado['tipo'] = False
+        else:
+            if tipo == 'down':
+                validado['tipo'] = 'admin'
+            else:
+                validado['tipo'] = 'trabajador'
+
+        valores = list(validado.values())
+
+        if False in valores:
+            self.ids.no_valid_notif.text = alert1
+        else:
+            self.ids.no_valid_notif.text = ''
+            self.agregar_usuario(True, validado)
+            self.dismiss()
