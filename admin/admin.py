@@ -8,6 +8,7 @@ from kivy.properties import BooleanProperty
 from kivy.uix.recycleboxlayout import RecycleBoxLayout
 from kivy.uix.behaviors import FocusBehavior
 from kivy.uix.recycleview import RecycleView
+from kivy.uix.label import Label
 from kivy.clock import Clock
 from kivy.lang import Builder
 from kivy.uix.dropdown import DropDown
@@ -629,6 +630,29 @@ class SelectableVentaLabel(RecycleDataViewBehavior, BoxLayout):
             rv.data[index]['seleccionado'] = True
         else:
             rv.data[index]['seleccionado'] = False
+
+
+class MainScreen(BoxLayout):
+    def __init__(self, **kwargs):
+        super(MainScreen, self).__init__(**kwargs)
+        self.trial_period = 1
+        self.start_date = datetime.now()
+        self.end_date = self.start_date + timedelta(days=self.trial_period)
+        self.trial_label = Label(
+            text=f"Período de prueba: {self.trial_period} días restantes")
+        self.add_widget(self.trial_label)
+        Clock.schedule_interval(self.check_trial_period, 1)
+
+    def check_trial_period(self, dt):
+
+        if datetime.now() > self.end_date:
+            self.trial_label.text = "Período de prueba expirado"
+        else:
+            time_left = self.end_date - datetime.now()
+            days_left = time_left.days
+            hours_left = time_left.seconds // 3600
+            minutes_left = (time_left.seconds // 60) % 60
+            self.trial_label.text = f"{days_left}:{hours_left}:{minutes_left} restantes para que expire la version de prueba"
 
 
 class AdminApp(App):

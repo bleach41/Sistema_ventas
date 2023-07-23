@@ -516,11 +516,13 @@
 				text: 'Cambiar Vista'
 				on_release: root.cambiar_vista()
 			Label:
-				id: mostrat_usuario
+				id: mostrar_usuario
 				size_hint_x: .2
 				color: hex('#000000')
-			Label:
+			MainScreen:
+				# id: trial_label
 				size_hint_x: .2
+				
 			Label:
 				id: notification
 				size_hint_x: .2
@@ -552,3 +554,10 @@
 
     BoxLayout:
     	size_hint_y:.05
+
+<MainScreen>:
+    orientation: "vertical"
+    Label:
+        id: trial_label
+        # text: "Período de prueba: 7 días restantes"
+        font_size: 20		
